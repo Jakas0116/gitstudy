@@ -1,0 +1,854 @@
+<html>
+<head>
+<meta charset="EUC-KR">
+<title> TETRIS </title>
+<script>
+
+var map = [];
+
+var row = 12;
+// var col = 17;
+var col = 21;
+
+var blocks = [
+//orange
+//  ■
+//■■■
+//0
+//-1 -2
+[[0,0,0,0],
+ [0,0,5,0],
+ [5,5,5,0],
+ [0,0,0,0]],
+
+ //0 -1
+[[0,5,0,0],
+ [0,5,0,0],
+ [0,5,5,0],
+ [0,0,0,0]],
+
+ //-1 -1
+[[0,0,0,0],
+ [0,5,5,5],
+ [0,5,0,0],
+ [0,0,0,0]],
+
+ //-1 -1
+[[0,0,0,0],
+ [0,5,5,0],
+ [0,0,5,0],
+ [0,0,5,0]],
+
+//blue
+//■
+//■■■
+
+//-1 -1
+[[0,0,0,0],
+ [0,5,0,0],
+ [0,5,5,5],
+ [0,0,0,0]],
+
+ //-1 -1
+[[0,0,0,0],
+ [0,5,5,0],
+ [0,5,0,0],
+ [0,5,0,0]],
+
+ //-1 0
+[[0,0,0,0],
+ [5,5,5,0],
+ [0,0,5,0],
+ [0,0,0,0]],
+
+ //0 -2
+[[0,0,5,0],
+ [0,0,5,0],
+ [0,5,5,0],
+ [0,0,0,0]],
+
+//purple
+//■
+//■■■
+
+//-1 -1
+[[0,0,0,0],
+ [0,5,0,0],
+ [5,5,5,0],
+ [0,0,0,0]],
+
+ //-1 -1
+[[0,0,0,0],
+ [0,5,0,0],
+ [0,5,5,0],
+ [0,5,0,0]],
+
+ //-2 0
+[[0,0,0,0],
+ [0,0,0,0],
+ [5,5,5,0],
+ [0,5,0,0]],
+
+ //-1 -1
+[[0,0,0,0],
+ [0,5,0,0],
+ [5,5,0,0],
+ [0,5,0,0]],
+
+//red
+//■■
+//■■
+
+//-1 0
+[[0,0,0,0],
+ [5,5,0,0],
+ [0,5,5,0],
+ [0,0,0,0]],
+
+ //-1 -1
+[[0,0,0,0],
+ [0,5,0,0],
+ [5,5,0,0],
+ [5,0,0,0]],
+
+//green
+//■■
+//■■
+
+//-1 -1
+[[0,0,0,0],
+ [0,5,5,0],
+ [5,5,0,0],
+ [0,0,0,0]],
+
+//-1 -1
+[[0,0,0,0],
+ [0,5,0,0],
+ [0,5,5,0],
+ [0,0,5,0]],
+
+//skyblue
+//■■■■
+//-2 0
+[[0,0,0,0],
+ [0,0,0,0],
+ [5,5,5,5],
+ [0,0,0,0]],
+//0 -1
+[[0,5,0,0],
+ [0,5,0,0],
+ [0,5,0,0],
+ [0,5,0,0]],
+
+//yellow
+//■■
+//■■
+//-1 -1
+[[0,0,0,0],
+ [0,5,5,0],
+ [0,5,5,0],
+ [0,0,0,0]],
+               
+];
+
+function initMap(){
+	for(i=0;i<col;i++){
+		map[i] = new Array();
+		for(j=0;j<row;j++){
+			map[i][j] = new Array();
+			if(i==0 || i==col-1 || j==0 || j==row-1)
+				map[i][j] = 1;
+			else
+				map[i][j] = 0;
+		}
+	}
+	printMap();
+	var mHTML = [];
+	mHTML.push("<h1><font color='white'>T E T R I S</font></h1>");
+	document.getElementById("mes").innerHTML = mHTML.join("");
+}
+
+var score = 0;
+var lines = 0;
+var speed = 2000;
+
+function printMap(){
+	if(started==1)
+		printTarget();
+
+	var wid = 30;
+	var hei = 30;
+
+	var aHTML = [];
+	for(i=4;i<col;i++){
+		for(j=0;j<row;j++){
+ 			//aHTML.push(map[i][j]);
+			if(map[i][j]==0)
+				aHTML.push('<img src="img/black.png" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]==1);
+				//aHTML.push('<img src="img/black.png" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]==5){
+				if(blksel==0 || blksel==1 || blksel==2 || blksel==3)
+					aHTML.push('<img src="img/orange.png" width="'+wid+'" height="'+hei+'">');
+				else if(blksel==4 || blksel==5 || blksel==6 || blksel==7)
+					aHTML.push('<img src="img/blue.png" width="'+wid+'" height="'+hei+'">');
+				else if(blksel==8 || blksel==9 || blksel==10 || blksel==11)
+					aHTML.push('<img src="img/purple.png" width="'+wid+'" height="'+hei+'">');
+				else if(blksel==12 || blksel==13)
+					aHTML.push('<img src="img/red.png" width="'+wid+'" height="'+hei+'">');
+				else if(blksel==14 || blksel==15)
+					aHTML.push('<img src="img/green.png" width="'+wid+'" height="'+hei+'">');
+				else if(blksel==16 || blksel==17)
+					aHTML.push('<img src="img/sblue.png" width="'+wid+'" height="'+hei+'">');
+				else if(blksel==18)
+					aHTML.push('<img src="img/yellow.png" width="'+wid+'" height="'+hei+'">');
+				else
+					aHTML.push('<img src="img/blue.png" width="'+wid+'" height="'+hei+'">');
+			}
+			else if(map[i][j]==4)
+				aHTML.push('<img src="img/gray.png" width="'+wid+'" height="'+hei+'">');
+			//color stoped
+			else if(map[i][j]>=20 && map[i][j]<=23)
+				aHTML.push('<img src="img/orange.png" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=24 && map[i][j]<=27)
+				aHTML.push('<img src="img/blue.png" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=28 && map[i][j]<=31)
+				aHTML.push('<img src="img/purple.png" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=32 && map[i][j]<=33)
+				aHTML.push('<img src="img/red.png" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=34 && map[i][j]<=35)
+				aHTML.push('<img src="img/green.png" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=36 && map[i][j]<=37)
+				aHTML.push('<img src="img/sblue.png" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]==38)
+				aHTML.push('<img src="img/yellow.png" width="'+wid+'" height="'+hei+'">');
+
+
+			//block target
+			else if(map[i][j]>=40 && map[i][j]<=43)
+				aHTML.push('<img src="img/orange.png" style="opacity:0.4" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=44 && map[i][j]<=47)
+				aHTML.push('<img src="img/blue.png" style="opacity:0.4" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=48 && map[i][j]<=51)
+				aHTML.push('<img src="img/purple.png" style="opacity:0.4" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=52 && map[i][j]<=53)
+				aHTML.push('<img src="img/red.png" style="opacity:0.4" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=54 && map[i][j]<=55)
+				aHTML.push('<img src="img/green.png" style="opacity:0.4" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]>=56 && map[i][j]<=57)
+				aHTML.push('<img src="img/sblue.png" style="opacity:0.4" width="'+wid+'" height="'+hei+'">');
+			else if(map[i][j]==58)
+				aHTML.push('<img src="img/yellow.png" style="opacity:0.4" width="'+wid+'" height="'+hei+'">');
+
+		}
+		if(i<col-1) aHTML.push('<br>');
+	}
+	document.getElementById("target").innerHTML = aHTML.join("");
+		
+	document.getElementsByName("score")[0].value = score;
+	document.getElementsByName("lines")[0].value = lines;
+	document.getElementsByName("combo")[0].value = combo;
+	
+		var	sHTML = [];
+// 		sHTML.push("blksel : "+blksel+"<br>");
+// 		aHTML.push("tblksel : "+tblksel+"<br>");
+// 		aHTML.push("blkX : "+blkX+"<br>");
+// 		aHTML.push("blkY : "+blkY+"<br>");
+// 		sHTML.push("score : "+score+"<br>");
+// 		sHTML.push("lines : "+lines+"<br>");
+// 		sHTML.push("combo : "+combo+"<br>");
+		
+		document.getElementById("target_s").innerHTML = sHTML.join("");
+		
+		var nHTML = [];
+		//next block
+		var n = 0;
+		var m = 0;
+		var nwid = Math.floor(wid/3)+Math.floor(wid/3);
+		var nhei = Math.floor(hei/3)+Math.floor(hei/3);
+		for(i=0 ; i<4 ; i++){
+			nHTML.push('<img src="img/black.png" width="'+nwid+'" height="'+nhei+'">');
+			for(j=0 ; j<4 ; j++){
+					if(blocks[nblksel][n][m]==0)
+						nHTML.push('<img src="img/black.png" width="'+nwid+'" height="'+nhei+'">');
+					else if(blocks[nblksel][n][m]==5)
+					{
+						if(nblksel==0 || nblksel==1 || nblksel==2 || nblksel==3)
+							nHTML.push('<img src="img/orange.png" width="'+nwid+'" height="'+nhei+'">');
+						else if(nblksel==4 || nblksel==5 || nblksel==6 || nblksel==7)
+							nHTML.push('<img src="img/blue.png" width="'+nwid+'" height="'+nhei+'">');
+						else if(nblksel==8 || nblksel==9 || nblksel==10 || nblksel==11)
+							nHTML.push('<img src="img/purple.png" width="'+nwid+'" height="'+nhei+'">');
+						else if(nblksel==12 || nblksel==13)
+							nHTML.push('<img src="img/red.png" width="'+nwid+'" height="'+nhei+'">');
+						else if(nblksel==14 || nblksel==15)
+							nHTML.push('<img src="img/green.png" width="'+nwid+'" height="'+nhei+'">');
+						else if(nblksel==16 || nblksel==17)
+							nHTML.push('<img src="img/sblue.png" width="'+nwid+'" height="'+nhei+'">');
+						else if(nblksel==18)
+							nHTML.push('<img src="img/yellow.png" width="'+nwid+'" height="'+nhei+'">');
+						else
+							nHTML.push('<img src="img/blue.png" width="'+nwid+'" height="'+nhei+'">');
+					}
+			m++;
+			}
+			n++;
+			m=0;
+			nHTML.push('<img src="img/black.png" width="'+nwid+'" height="'+nhei+'">');
+			nHTML.push('<br>');
+		}
+		document.getElementById("target_n").innerHTML = nHTML.join("");
+		//////////////
+	
+}
+
+var started=0;
+var ended=0;
+
+function inRank(){
+//	var ip = document.getElementById("ip").value;
+// 	alert(ip);
+//	location.href = "sinsert?score="+score+"&ip="+ip;
+}
+
+function downIntv(){
+	if(ended==1)
+		return;
+
+	blockDown();
+	if(speed<=150) speed=150;
+
+	setTimeout('downIntv()',speed);
+}
+
+function insKey(){
+	if(ended==1){
+		return;
+	}
+	
+ 	if(event.keyCode==13 && started==0){
+		//제목 지우기
+		var mHTML = [];
+		document.getElementById("mes").innerHTML = mHTML.join("");
+
+ 		blockSet();
+ 		started = 1;
+ 		setTimeout('downIntv()',speed);
+ 	}
+ 	
+ 	
+ 	if(event.keyCode==32){
+ 		blockFall();
+ 	} 
+ 	else if(event.keyCode==38){
+ 		blockTurn();
+ 	} 	
+ 	else if(event.keyCode==37){
+ 		moveLeft();
+ 	}
+ 	else if(event.keyCode==39){
+ 		moveRight();
+ 	}
+ 	else if(event.keyCode==40){
+ 		blockDown();
+ 	} 	
+}
+
+var blksel = 0;
+var nblksel = 0;
+
+var start;
+var end;
+
+var overcalled = 0;
+function gameOver(){
+	if(overcalled==1)
+		return;
+	overcalled = 1;
+	ended=1;
+	var mHTML = [];
+	mHTML.push("<h1><font color='white'>GAME OVER</font></h1>");
+	document.getElementById("mes").innerHTML = mHTML.join("");
+}
+
+function blockSet(){
+	eraseTarget();
+
+	start = new Date().getTime();
+	blksel = nblksel;
+	nblksel = Math.floor(Math.random()*7);
+	//0 8 12 14 16 18
+	if(nblksel==1) nblksel = 8;
+	else if(nblksel==2) nblksel = 12;
+	else if(nblksel==3) nblksel = 14;
+	else if(nblksel==5) nblksel = 18;
+	else if(nblksel==6) nblksel = 16;
+	
+	//block start loc
+	var srow = 4;
+	var scol = 2;
+	
+	for(i=scol;i<scol+4;i++){
+		for(j=srow;j<srow+4;j++){
+			if(map[i][j]==0)
+				map[i][j] = blocks[blksel][i-scol][j-srow];
+			else{
+				gameOver();
+				return;
+			}
+		}
+	}
+	printTarget();
+	printMap();
+}
+
+function printTarget(){
+	var map2 = [];
+
+	for(var i=1;i<col-1;i++){
+		map2[i] = [];
+		for(var j=1;j<row-1;j++){
+			if(map[i][j]>=40 && map[i][j]<=60)
+				map[i][j] = 0;
+			map2[i][j] = map[i][j];
+		}
+	}
+
+	isBlockFall = true;
+	while(chkDown())
+	{
+		blockDown();
+	}
+	isBlockFall = false;
+
+	for(var i=0;i<col-1;i++){
+		for(var j=0;j<row-1;j++){
+			if(map[i][j]==5 && map2[i][j]==0){
+				map2[i][j] = (blksel + 40);
+			}
+		}
+	}
+
+
+	for(var i=1;i<col-1;i++){
+		for(var j=1;j<row-1;j++){
+				map[i][j] = map2[i][j];
+		}
+	}
+
+}
+
+function eraseTarget(){
+	for(var i=1;i<col-1;i++){
+		for(var j=1;j<row-1;j++){
+			if(map[i][j]>=40 && map[i][j]<=60)
+				map[i][j] = 0;
+		}
+	}
+}
+
+function blockFall(){
+	eraseTarget();
+	isBlockFall = true;
+	while(chkDown())
+	{
+		blockDown();
+	}
+	isBlockFall = false;
+	blockStop();
+	blockSet();
+}
+
+var tblksel;
+var blkX,blkY;
+
+function turnChk(){
+	eraseTarget();
+
+	var map_temp = [];
+	
+	if(blksel==18)
+		return;
+	
+	if(blksel==0 || blksel==1 || blksel==2
+	 || blksel==4 || blksel==5 || blksel==6
+	 || blksel==8 || blksel==9 || blksel==10
+	 || blksel==12 || blksel==14 || blksel==16){
+		tblksel = blksel + 1;
+	}
+	else if(blksel==3 || blksel==7 || blksel==11){
+		tblksel = blksel - 3;
+	}
+	else if(blksel==13 || blksel==15 || blksel==17){
+		tblksel = blksel - 1;
+	}	
+	
+	for(i=1;i<col-1;i++){
+		for(j=1;j<row-1;j++){
+			if(map[i][j]==5){
+				blkX = i;
+				blkY = j;
+				i = col-1;
+				break;
+			}
+		}
+	}
+	
+	if(blksel==0){
+		blkX-=1;
+		blkY-=2
+	}
+	else if(blksel==1 || blksel==17){
+		blkY-=1;
+	}
+	else if(blksel==2 || blksel==3
+		 || blksel==4 || blksel==5
+		 || blksel==8 || blksel==9
+		 || blksel==11 || blksel==13
+		 || blksel==14 || blksel==15
+		 || blksel==18){
+		blkX-=1;
+		blkY-=1;
+	}
+	else if(blksel==6 || blksel==12){
+		blkX-=1;
+		
+	}
+	else if(blksel==7){
+		blkY-=2;
+	}
+	else if(blksel==10 || blksel==16){
+		blkX-=2;
+	}
+	
+
+	for(i=0;i<col;i++){
+		map_temp[i] = new Array();
+		for(j=0;j<row;j++){
+			map_temp[i][j] = new Array();
+			
+			if(map[i][j]==5)
+				map_temp[i][j] = 0;
+			else
+				map_temp[i][j] = map[i][j];
+		}
+	}
+	
+	var n=0;
+	var m=0;
+	
+	for(i=blkX;i<blkX+4;i++){
+		for(j=blkY;j<blkY+4;j++){
+			if(blocks[tblksel][n][m]==5 && map_temp[i][j]!=0){
+				if(map_temp[i][j]>=40 && map_temp[i][j]<=60)
+					break;
+
+				return false;
+			}
+			m++;
+		}
+		n++;
+		m=0;
+	}
+	
+	return true;
+}
+
+function mapClear(){
+	for(i=0;i<col;i++){
+		for(j=0;j<row;j++){
+			if(map[i][j]==5)
+				map[i][j]=0;
+		}
+	}
+}
+
+function blockTurn(){
+	var n=0;
+	var m=0;
+	if(turnChk()){
+		mapClear();
+		blksel = tblksel;
+// 		alert("blksel :  "+blksel + "tblksel : "+tblksel);
+// 		alert("blkX : "+blkX + " blkY : "+blkY);
+		for(i=blkX ; i<blkX+4 ; i++){
+			for(j=blkY ; j<blkY+4 ; j++){
+				if(blocks[tblksel][n][m]==5 && map[i][j]==0){
+					map[i][j] = blocks[tblksel][n][m];
+				}
+				m++;
+			}
+			n++;
+			m=0;
+		}
+	}else{
+		
+		if(chkLeft()){
+			moveLeft();
+			if(turnChk()){
+				mapClear();
+				blksel = tblksel;
+		// 		alert("blksel :  "+blksel + "tblksel : "+tblksel);
+		// 		alert("blkX : "+blkX + " blkY : "+blkY);
+				for(i=blkX ; i<blkX+4 ; i++){
+					for(j=blkY ; j<blkY+4 ; j++){
+						if(blocks[tblksel][n][m]==5 && map[i][j]==0){
+							map[i][j] = blocks[tblksel][n][m];
+						}
+						m++;
+					}
+					n++;
+					m=0;
+				}
+			}
+			else{
+				moveRight();
+			}
+		}
+
+
+		if(chkRight()){
+			moveRight();
+			if(turnChk()){
+				mapClear();
+				blksel = tblksel;
+		// 		alert("blksel :  "+blksel + "tblksel : "+tblksel);
+		// 		alert("blkX : "+blkX + " blkY : "+blkY);
+				for(i=blkX ; i<blkX+4 ; i++){
+					for(j=blkY ; j<blkY+4 ; j++){
+						if(blocks[tblksel][n][m]==5 && map[i][j]==0){
+							map[i][j] = blocks[tblksel][n][m];
+						}
+						m++;
+					}
+					n++;
+					m=0;
+				}
+			}
+			else{
+				moveLeft();
+			}
+		}
+
+		
+	}
+	printMap();
+}
+
+function chkDown(){
+	for(i=1;i<row-1;i++){
+		for(j=col-2;j>1;j--){
+			if(map[j][i]==5 && map[j+1][i]==0){
+				break;
+			}
+			else if(map[j][i]==5 && map[j+1][i]!=0){
+				if(map[j+1][i]>=40 && map[j+1][i]<=60)
+					break;	
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+function chkEnd(){
+	for(i=1;i<row-1;i++){
+		if(map[4][i]>=20 && map[4][i]<=38){
+			gameOver();			
+			return false;
+		}
+	}
+	return true;
+}
+
+var combo = 0;
+
+function blockStop(){
+	
+	end = new Date().getTime(); 
+	if((end-start)/(1000) < 1.5){
+		combo++;
+		speed-=2;
+	}
+	else
+		combo = 0;
+
+	
+	score += 10;
+	score += (combo*combo);
+	speed -= 1;
+	
+	for(i=1;i<col-1;i++){
+		for(j=1;j<row-1;j++){
+			if(map[i][j]==5)
+// 				map[i][j]=4;
+				map[i][j] = blksel + 20;
+		}
+	}
+	
+	if(!chkEnd()){
+		ended = 1;
+		return;
+	}
+	
+	//4줄 클리어
+
+	var fclear = 0;
+	while(chkPop()){
+			fclear++;
+// 			if(fclear==4)
+// 			printTetris();
+	}
+	
+	
+}
+
+function printTetris(){
+	alert("4LINES CLEAR");
+	return;
+}
+
+function chkPop(){
+	var cnt;
+	for(i=col-1;i>0;i--){
+		cnt=0;
+		for(j=1;j<row-1;j++){
+// 			if(map[i][j]==4){
+			if(map[i][j]>=20 && map[i][j]<=38){
+				cnt++;
+			}
+		}
+		if(cnt==10){
+			blockPop(i);
+			return true;
+		}
+	}
+	return false;
+}
+
+function blockPop(ind){
+	lines += 1;
+	score += 100;
+	speed -= 10;
+	for(i=ind;i>1;i--){
+		for(j=1;j<row-1;j++){
+			map[i][j] = map[i-1][j];
+		}
+	}
+}
+
+var isBlockFall = false;
+
+function blockDown(){
+	if(chkDown()){
+		for(i=col-2;i>0;i--){
+			for(j=1;j<row-1;j++){
+				if(map[i][j]==5){
+					map[i+1][j] = 5;
+					map[i][j] = 0;
+				}
+			}
+		}
+	}else{
+		blockStop();
+		blockSet();
+	}
+	if(!isBlockFall)
+		printMap();
+
+}
+
+function chkLeft(){
+	for(i=1;i<col-1;i++){
+		for(j=1;j<row;j++){
+			if(map[i][j]==5 && map[i][j-1]==0){
+				break;
+			}
+			else if(map[i][j]==5 && map[i][j-1]!=0){
+				if(map[i][j-1]>=40 && map[i][j-1]<=60)
+					break;
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+function moveLeft(){
+	if(chkLeft()){
+		for(i=1;i<col-1;i++){
+			for(j=1;j<row;j++){
+				if(map[i][j]==5){
+					map[i][j]=0;
+					map[i][j-1]=5;
+				}
+			}
+		}
+	}
+	printMap();
+}
+
+function chkRight(){
+	for(i=1;i<col-1;i++){
+		for(j=row-2;j>0;j--){
+			if(map[i][j]==5 && map[i][j+1]==0){
+				break;
+			}			
+			else if(map[i][j]==5 && map[i][j+1]!=0){
+				if(map[i][j+1]>=40 && map[i][j+1]<=60)
+					break;
+				return false;
+			}
+		}
+	}
+	return true;	
+}
+
+function moveRight(){
+	if(chkRight()){
+		for(i=1;i<col-1;i++){
+			for(j=row-2;j>0;j--){
+				if(map[i][j]==5){
+					map[i][j]=0;
+					map[i][j+1]=5;
+				}
+			}
+		}
+	}
+	printMap();
+}
+
+
+setTimeout('initMap()',100);
+	
+</script>
+</head>
+<body onkeydown="insKey()">
+<div id="mes" style="position:absolute;top:50px;left:100px;"></div>
+
+<table border="0" style="text-align:center;background:#3671E7;">
+	<tr>
+		<td rowspan="3" style="padding:30px;"><div id="target" style="border:10px solid #6799FF;border-radius:5px;"></div></td>
+		<td style="padding-right:20px;">
+			<table cellspacing="0" padding="0">
+				<tr><td style="padding:5px;font-family:'Arial';font-size:16px;color:#002C91;background:#6799FF;">NEXT</td></tr>
+				<tr><td><div id="target_n"></div></td></tr>
+			</table>
+		</td>
+		
+	</tr>
+	<tr>
+		<td>
+		<div id="target_s"></div>
+		SCORE<br>
+		<input type="text" name="score" style="width:100px;height:30px;border:0;background:#151E47;color:white;text-align:center;font-size:20px;" value="0" readonly><br>
+		LINES<br>
+		<input type="text" name="lines" style="width:100px;height:30px;border:0;background:#151E47;color:white;text-align:center;font-size:20px;" value="0" readonly><br>
+		COMBO<br>
+		<input type="text" name="combo" style="width:100px;height:30px;border:0;background:#151E47;color:white;text-align:center;font-size:20px;" value="0" readonly><br>
+		</td>
+	</tr>
+
+</table>
+</body>
+</html>
